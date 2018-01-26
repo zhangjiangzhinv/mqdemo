@@ -17,5 +17,25 @@
           http://www.springframework.org/schema/rabbit
           http://www.springframework.org/schema/rabbit/spring-rabbit-1.5.xsd"
           >
+    
+    <rabbit:connection-factory id="connectionFactory" host="{mq.host}" username="{mq.username}" password="mq.password" />
+	<rabbit:template id="amqpTemplate" connection-factory="connectionFactory"
+		exchange="myExchange" routing-key="postcard"/>
+	
+	<rabbit:admin connection-factory="connectionFactory" />
+	
+	<rabbit:queue name="activeQueue" />
+	
+	<rabbit:topic-exchange name="myExchange">
+		<rabbit:bindings>
+			<rabbit:binding queue="activeQueue" pattern="cn.red.com.*" />
+		</rabbit:bindings>
+	</rabbit:topic-exchange>
+	
+	<rabbit:listener-container connection-factory="connectionFactory">
+		<rabbit:listener ref="foo" method="listen" queue-names="activeQueue" />
+	</rabbit:listener-container>
+	
+	<bean id="foo" class="cn.red.com.rabbitmq.FooConsumer" />
 	
 </beans> 

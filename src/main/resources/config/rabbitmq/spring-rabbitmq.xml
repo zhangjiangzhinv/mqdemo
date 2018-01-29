@@ -18,7 +18,7 @@
           http://www.springframework.org/schema/rabbit/spring-rabbit-1.5.xsd"
           >
     
-    <rabbit:connection-factory id="connectionFactory" host="${mq.host}" username="${mq.username}" password="$mq.password" />
+    <rabbit:connection-factory id="connectionFactory" host="${mq.host}" username="${mq.username}" password="${mq.password}" />
 	
 	<rabbit:template id="amqpTemplate" connection-factory="connectionFactory"
 		exchange="myExchange" routing-key="postcard"/>
@@ -37,6 +37,6 @@
 		<rabbit:listener ref="foo" method="listen" queue-names="activeQueue" />
 	</rabbit:listener-container>-->
 	
-	<bean id="foo" class="cn.red.com.rabbitmq.FooConsumer" />
+	<bean id="foo" class="cn.red.com.rabbitmq.javaclient.FooConsumer" />
 	
 </beans> 

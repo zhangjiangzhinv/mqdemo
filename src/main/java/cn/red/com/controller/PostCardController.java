@@ -22,7 +22,6 @@ public class PostCardController{
 	@Autowired
 	private PostCardProducer postCardProducer;
 	@Autowired
-	@Qualifier(value="amqpTemplate")
 	private RabbitTemplate rabbitTemplate;
 	
 	@GetMapping(value="/{id}")
@@ -40,15 +39,15 @@ public class PostCardController{
 	}
 
 	@GetMapping(value="/send/delay")
-	public String sendPostCard(Double seconds) throws Exception{
-		ProcessReceiver.latch = new CountDownLatch(3);
+	public String sendPostCardDelay() throws Exception{
 		for(int i = 1; i <= 3; i++){
-			long expiration = i * 1000;
+			long expiration = 1;
+			// routingKey, message, messagePostProcessor
+			// 为每个消息指定TTL
 			rabbitTemplate.convertAndSend(RabbitMQConstant.DELAY_QUEUE_PER_MESSAGE_TTL_NAME,
 					(Object)("Message From delay_queue_per_message_ttl with expiration "+expiration),
 					new ExpirationMessagePostProcessor(expiration));
 		}
-		ProcessReceiver.latch.await();
 		return "finished";
 	}
 	

@@ -23,7 +23,7 @@
     
     <!-- 扫描包中的service,repository,component... -->
     <!-- controller的扫描要在dispathcer-servlet的配置文件中配置 -->
-    <context:component-scan base-package = "cn.red.com.*"/>
+    <context:component-scan base-package = "cn.red.com.*,cn.red.com.*.*"/>
     
     <!-- 加载 模块下 spring 配置文件 -->
     <import resource="classpath:config/rabbitmq/spring-*.xml" />

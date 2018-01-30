@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
  */
 public class DelayConsumeApplicationTest {
 	@Autowired
-	@Qualifier(value="amqpTemplate")
+	@Qualifier(value="rabbitTemplate")
 	private RabbitTemplate rabbitTemplate;// 在spring-rabbitmq.xml中进行了配置
 	
 	@Test

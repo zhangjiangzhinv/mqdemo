@@ -18,8 +18,8 @@ public class RabbitMQConstant {
 	public static final String DELAY_EXCHANGE_NAME = "delay_exchange";
 	
 	// 交换器，用于缓冲队列
-	// 该交换器绑定的队列是DELAY_QUEUE_PER_QUEUE_TTL_NAME
-	public static final String PER_QUEUE_TTL_EXCHANGE_NAME = "pre_queue_ttl_exchange";
+	// 该交换器绑定的队列是DELAY_QUEUE_PER_QUEUE_TTL_NAME和DELAY_QUEUE_PER_MESSAGE_TTL_NAME
+	public static final String BUFFER_EXCHANGE_NAME = "buffer_exchange";
 
 
 	

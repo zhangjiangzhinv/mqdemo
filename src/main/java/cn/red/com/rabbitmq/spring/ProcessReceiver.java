@@ -23,11 +23,12 @@ public class ProcessReceiver implements ChannelAwareMessageListener {
     public void onMessage(Message message, Channel channel) throws Exception {
         try {
             processMessage(message);
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);  
         }
         catch (Exception e) {
             // 如果发生了异常，则将该消息重定向到缓冲队列，会在一定延迟之后自动重做
         	// 该处使用的是AMQP BASIC.PUBLISH 是生产者发送消息
-            channel.basicPublish(RabbitMQConstant.PER_QUEUE_TTL_EXCHANGE_NAME, RabbitMQConstant.DELAY_QUEUE_PER_QUEUE_TTL_NAME, null,
+            channel.basicPublish(RabbitMQConstant.BUFFER_EXCHANGE_NAME, RabbitMQConstant.DELAY_QUEUE_PER_QUEUE_TTL_NAME, null,
                     "The failed message will auto retry after a certain delay".getBytes());
         }
 
@@ -45,6 +46,7 @@ public class ProcessReceiver implements ChannelAwareMessageListener {
     public void processMessage(Message message) throws Exception {
         String realMessage = new String(message.getBody());
         logger.info("Received <" + realMessage + ">");
+        System.out.println("================================Received <" + realMessage + ">");
         if (Objects.equals(realMessage, FAIL_MESSAGE)) {
             throw new Exception("Some exception happened");
         }

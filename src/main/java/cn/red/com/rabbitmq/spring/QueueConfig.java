@@ -13,7 +13,7 @@ public class QueueConfig {
 	 * @return
 	 */
 	@Bean
-	public Queue delayQueuePerMessageTTL() {
+	Queue delayQueuePerMessageTTL() {
 		return QueueBuilder.durable(RabbitMQConstant.DELAY_QUEUE_PER_MESSAGE_TTL_NAME)
 			.withArgument("x-dead-letter-exchange", RabbitMQConstant.DELAY_EXCHANGE_NAME) // DLX，dead letter发送到的exchange
 			.withArgument("x-dead-letter-routing-key", RabbitMQConstant.DELAY_PROCESS_QUEUE_NAME) // dead letter携带的routing key

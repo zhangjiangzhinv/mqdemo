@@ -21,6 +21,12 @@ import org.springframework.context.annotation.Configuration;
 public class ExchangeConfig {
 	@Autowired
 	private ConnectionFactory connectionFactory;
+	@Autowired
+	private ProcessReceiver processReceiver;
+	@Autowired
+	private ConfirmCallback confirmCallback;
+	@Autowired
+	private ReturnCallback returnCallback;
 	
 	/**
 	 * 创建死信交换器
@@ -31,6 +37,11 @@ public class ExchangeConfig {
 		return new DirectExchange(RabbitMQConstant.DELAY_EXCHANGE_NAME);
 	}
 
+	@Bean
+	DirectExchange bufferExchange(){
+		return new DirectExchange(RabbitMQConstant.BUFFER_EXCHANGE_NAME);
+	}
+	
 	/**
 	 * 将实际消费队列绑定到死信交换器
 	 * @param delayProcessQueue
@@ -41,25 +52,33 @@ public class ExchangeConfig {
 	Binding dlxBinding(Queue delayProcessQueue, DirectExchange delayExchange) {
 		return BindingBuilder.bind(delayProcessQueue)
 			.to(delayExchange)
-			.with(RabbitMQConstant.DELAY_PROCESS_QUEUE_NAME);
-	}
-	
-	@Bean
-	DirectExchange preQueueTTlExchange(){
-		return new DirectExchange(RabbitMQConstant.PER_QUEUE_TTL_EXCHANGE_NAME);
+			.with(RabbitMQConstant.DELAY_PROCESS_QUEUE_NAME);// routingKey
 	}
 	
     /**
-     * 将队列delay_per_queue_ttl_queue绑定到per_queue_ttl_exchange
+     * 将队列delay_per_queue_ttl_queue绑定到buffer_exchange
      * @param delayQueuePerQueueTTL 该队列中的所有message都有统一的生存时间
-     * @param perQueueTTLExchange
+     * @param bufferExchange
      * @return
      */
     @Bean
-    Binding queueTTLBinding(Queue delayQueuePerQueueTTL, DirectExchange perQueueTTLExchange) {
+    Binding queueTTLBinding(Queue delayQueuePerQueueTTL, DirectExchange bufferExchange) {
         return BindingBuilder.bind(delayQueuePerQueueTTL)
-                             .to(perQueueTTLExchange)
+                             .to(bufferExchange)
                              .with(RabbitMQConstant.DELAY_QUEUE_PER_QUEUE_TTL_NAME);
+    }
+    
+    /**
+     * 将队列delay_per_message_ttl_queue绑定到buffer_exchange
+     * @param delayQueuePerMessageTTL
+     * @param bufferExchange
+     * @return
+     */
+    @Bean
+    Binding messageTTLBinding(Queue delayQueuePerMessageTTL, DirectExchange bufferExchange) {
+        return BindingBuilder.bind(delayQueuePerMessageTTL)
+                             .to(bufferExchange)
+                             .with(RabbitMQConstant.DELAY_QUEUE_PER_MESSAGE_TTL_NAME);
     }
 
 	  /**
@@ -69,7 +88,7 @@ public class ExchangeConfig {
      * @return
      */
     @Bean
-    SimpleMessageListenerContainer processContainer(ConnectionFactory connectionFactory, ProcessReceiver processReceiver) {
+    SimpleMessageListenerContainer processContainer() {
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
         container.setQueueNames(RabbitMQConstant.DELAY_PROCESS_QUEUE_NAME); // 监听delay_process_queue
@@ -77,11 +96,13 @@ public class ExchangeConfig {
         return container;
     }
    
-    /*
+ 
     @Bean
-    RabbitTemplate getRabbitTemplate(){
+    RabbitTemplate rabbitTemplate(){
     	RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
-    	rabbitTemplate.setExchange(RabbitMQConstant.PER_QUEUE_TTL_EXCHANGE_NAME);
+    	rabbitTemplate.setExchange(RabbitMQConstant.BUFFER_EXCHANGE_NAME);
+    	rabbitTemplate.setConfirmCallback(confirmCallback);
+    	rabbitTemplate.setReturnCallback(returnCallback);
     	return rabbitTemplate;
-    }*/
+    }
 }

@@ -20,23 +20,37 @@
     
     <rabbit:connection-factory id="connectionFactory" host="${mq.host}" username="${mq.username}" password="${mq.password}" />
 	
-	<rabbit:template id="amqpTemplate" connection-factory="connectionFactory"
-		exchange="myExchange" routing-key="postcard"/>
-	
 	<rabbit:admin connection-factory="connectionFactory" />
 	
-	<rabbit:queue name="activeQueue" />
+	<rabbit:queue name="myQueue" />
 	
 	<rabbit:topic-exchange name="myExchange">
 		<rabbit:bindings>
-			<rabbit:binding queue="activeQueue" pattern="cn.red.com.*" />
+			<rabbit:binding queue="myQueue" pattern="cn.red.com.*" />
 		</rabbit:bindings>
 	</rabbit:topic-exchange>
 	
-	<!-- <rabbit:listener-container connection-factory="connectionFactory">
-		<rabbit:listener ref="foo" method="listen" queue-names="activeQueue" />
+	<rabbit:template id="myTemplate" connection-factory="connectionFactory"
+					exchange="myExchange" routing-key="postcard"/>
+ 
+	<!-- 名称为rabbitListenerContainerFactory的Bean是为了配合@RabbitListener注解的使用 -->
+	<rabbit:annotation-driven />
+	<!-- json转换器，消息可以自动根据转换器转换格式，不配置时默认为java序列化，可以自行配置 -->
+	<bean id="messageConverter" class="org.springframework.amqp.support.converter.Jackson2JsonMessageConverter" />
+	<!-- 枚举类型要想注入，需要利用FieldRetrievingFactoryBean进行转换 -->
+	<bean id="manual" class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">   
+        <property name="staticField" value="org.springframework.amqp.core.AcknowledgeMode.MANUAL" />    
+    </bean>  
+	 <bean id="rabbitListenerContainerFactory"
+	    class="org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer">
+	    <property name="messageConverter" ref="messageConverter" />
+	    <property name="connectionFactory" ref="connectionFactory" />
+	    <property name="acknowledgeMode" ref="manual"/>
+	</bean>
+	 
+	<!-- <bean id="myConsumer" class="cn.red.com.rabbitmq.springxmlconfig.MyConsumer" />
+	<rabbit:listener-container connection-factory="connectionFactory">
+		<rabbit:listener ref="myConsumer" method="listen" queue-names="myQueue" />
 	</rabbit:listener-container>-->
-	
-	<bean id="foo" class="cn.red.com.rabbitmq.javaclient.FooConsumer" />
 	
 </beans> 

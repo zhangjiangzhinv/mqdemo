@@ -5,6 +5,33 @@
 <title>Insert title here</title>
 </head>
 <body>
-<h2>Today,Tomorrow</h2>
+<h2>Come on!</h2>
+<h3>现在发邮件</h3><input type="submit" id="sendNow" value="Send"/>
+<br>
+<h3>发送延迟邮件</h3>
+	<select id="delayTimeSelector">
+	<option value="">请选择延迟时间</option>
+	<option value="5s">5秒</option>
+	<option value="10s">10秒</option>
+	<option value="60s">60秒</option>
+</select>
+<script src="js/jquery-1.12.4.js" type="application/javascript"></script>
+<script type="application/javascript">
+	$(document).ready(function(){
+	    $("#sendNow").click(function(){
+	        console.log("sendNow button click now");
+	        $.get({
+	            url : "postcard/send/now.do",
+	            success : function(){
+					console.log("send now finished");
+				},
+				fail: function(){
+					console.log("send now fail");
+				}
+            });
+		});
+	});
+
+</script>
 </body>
 </html>

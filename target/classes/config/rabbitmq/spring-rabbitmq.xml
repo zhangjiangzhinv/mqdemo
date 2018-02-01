@@ -1,22 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- xmlns声明的是默认命名空间，在beans内，不带有前缀的元素都是在这个命名空间内的 -->
+<!-- schemaLocation提供了一个xml命名空间到对应的XSD(Xml Schema Definition)文件的一个映射,前边是命名空间的值，后面是命名空间对应的XSD文件的位置 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:context="http://www.springframework.org/schema/context"
-    xmlns:mvc="http://www.springframework.org/schema/mvc"
-    xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
-    xmlns:aop="http://www.springframework.org/schema/aop"
-    xmlns:rabbit="http://www.springframework.org/schema/rabbit"
-    xsi:schemaLocation="http://www.springframework.org/schema/context
-          http://www.springframework.org/schema/context/spring-context.xsd
-          http://www.springframework.org/schema/beans
-          http://www.springframework.org/schema/beans/spring-beans.xsd
-          http://www.springframework.org/schema/mvc
-          http://www.springframework.org/schema/mvc/spring-mvc.xsd
-          http://www.springframework.org/schema/aop
-          http://www.springframework.org/schema/aop/spring-aop.xsd
-          http://www.springframework.org/schema/rabbit
-          http://www.springframework.org/schema/rabbit/spring-rabbit-1.5.xsd"
-          >
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+		http://www.springframework.org/schema/rabbit http://www.springframework.org/schema/rabbit/spring-rabbit-2.0.xsd">
+
     
     <rabbit:connection-factory id="connectionFactory" host="${mq.host}" username="${mq.username}" password="${mq.password}" />
 	
@@ -24,33 +18,18 @@
 	
 	<rabbit:queue name="myQueue" />
 	
-	<rabbit:topic-exchange name="myExchange">
+	<rabbit:direct-exchange name="myExchange">
 		<rabbit:bindings>
-			<rabbit:binding queue="myQueue" pattern="cn.red.com.*" />
+			<rabbit:binding queue="myQueue" key="myQueue"/>
 		</rabbit:bindings>
-	</rabbit:topic-exchange>
+	</rabbit:direct-exchange>
 	
 	<rabbit:template id="myTemplate" connection-factory="connectionFactory"
-					exchange="myExchange" routing-key="postcard"/>
- 
-	<!-- 名称为rabbitListenerContainerFactory的Bean是为了配合@RabbitListener注解的使用 -->
-	<rabbit:annotation-driven />
-	<!-- json转换器，消息可以自动根据转换器转换格式，不配置时默认为java序列化，可以自行配置 -->
-	<bean id="messageConverter" class="org.springframework.amqp.support.converter.Jackson2JsonMessageConverter" />
-	<!-- 枚举类型要想注入，需要利用FieldRetrievingFactoryBean进行转换 -->
-	<bean id="manual" class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">   
-        <property name="staticField" value="org.springframework.amqp.core.AcknowledgeMode.MANUAL" />    
-    </bean>  
-	 <bean id="rabbitListenerContainerFactory"
-	    class="org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer">
-	    <property name="messageConverter" ref="messageConverter" />
-	    <property name="connectionFactory" ref="connectionFactory" />
-	    <property name="acknowledgeMode" ref="manual"/>
-	</bean>
-	 
-	<!-- <bean id="myConsumer" class="cn.red.com.rabbitmq.springxmlconfig.MyConsumer" />
-	<rabbit:listener-container connection-factory="connectionFactory">
-		<rabbit:listener ref="myConsumer" method="listen" queue-names="myQueue" />
-	</rabbit:listener-container>-->
+					exchange="myExchange" routing-key="myQueue"/>
+
+	<rabbit:listener-container connection-factory="connectionFactory" acknowledge="manual">
+		<rabbit:listener ref="myConsumer" method="onMessage" queue-names="myQueue" />
+	</rabbit:listener-container>
+	
 	
 </beans> 

@@ -4,7 +4,9 @@ package cn.red.com.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import cn.red.com.domain.PostCard;
@@ -34,9 +36,9 @@ public class PostCardController{
 		return "finished";
 	}
 
-	@GetMapping(value="/send/delay")
-	public String sendPostCardDelay() throws Exception{
-		delayProducer.sendDelay();
+	@PostMapping(value="/send/delay")
+	public String sendPostCardDelay(@RequestParam long expiration) throws Exception{
+		delayProducer.sendDelay(expiration);
 		return "finished";
 	}
 	

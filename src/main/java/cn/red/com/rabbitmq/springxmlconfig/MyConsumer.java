@@ -4,8 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.springframework.amqp.core.Message;
-import org.springframework.amqp.rabbit.annotation.EnableRabbit;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.ChannelAwareMessageListener;
 import org.springframework.stereotype.Component;
 
 import com.rabbitmq.client.Channel;
@@ -13,10 +12,10 @@ import com.rabbitmq.client.Channel;
 import cn.red.com.javamail.MailSender;
 
 @Component
-public class MyConsumer {
+public class MyConsumer implements ChannelAwareMessageListener{
 	
-	@RabbitListener(queues = "myQueue")
-	public void listen(Message message,Channel channel) throws Exception {
+	@Override
+	public void onMessage(Message message,Channel channel) throws Exception {
 		String realMessage = new String(message.getBody());
 		String smtpHost = "smtp.126.com";
 		String fromAddress = "jianghong8911@126.com";

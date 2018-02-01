@@ -15,9 +15,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"classpath:config/spring/applicationContext.xml","classpath:config/rabbitmq/spring-rabbitmq.xml"})
-@WebAppConfiguration
+@RunWith(SpringJUnit4ClassRunner.class)//表示使用Spring Test组件进行单元测试
+@ContextConfiguration(locations={"classpath:config/spring/applicationContext.xml","classpath:config/rabbitmq/spring-rabbitmq.xml"})//指定Bean的配置文件信息
+@WebAppConfiguration//真实的启一个web服务，调用Controller的Rest API，待单元测试跑完之后再将web服务停掉
 public class PostCardControllerTest {
 	private MockMvc mockMvc;
 	

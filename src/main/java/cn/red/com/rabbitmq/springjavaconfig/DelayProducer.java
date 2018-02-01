@@ -15,12 +15,21 @@ public class DelayProducer {
 	public void sendDelay(){
 		for(int i = 1; i <= 3; i++){
 			long expiration = i*1000;
-			String readyTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date());
-			// routingKey, message, messagePostProcessor
-			// 为每个消息指定TTL
-			rabbitTemplate.convertAndSend(RabbitMQConstant.DELAY_QUEUE_PER_MESSAGE_TTL_NAME,
-					(Object)("Message From delay_queue_per_message_ttl with expiration "+expiration+"ms.\n It was ready at "+ readyTime),
-					new ExpirationMessagePostProcessor(expiration));
+			send(expiration);
 		}
+	}
+	
+	public void sendDelay(long expiration){
+		expiration = expiration * 1000;
+		send(expiration);
+	}
+	
+	public void send(long expiration){
+		String readyTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date());
+		// routingKey, message, messagePostProcessor
+		// 为每个消息指定TTL
+		rabbitTemplate.convertAndSend(RabbitMQConstant.DELAY_QUEUE_PER_MESSAGE_TTL_NAME,
+				(Object)("Message From delay_queue_per_message_ttl with expiration "+expiration+"ms.\n It was ready at "+ readyTime),
+				new ExpirationMessagePostProcessor(expiration));
 	}
 }

@@ -11,10 +11,12 @@
 <h3>发送延迟邮件</h3>
 	<select id="delayTimeSelector">
 	<option value="">请选择延迟时间</option>
-	<option value="5s">5秒</option>
-	<option value="10s">10秒</option>
-	<option value="60s">60秒</option>
+	<option value="5">5秒</option>
+	<option value="10">10秒</option>
+	<option value="60">60秒</option>
 </select>
+<br>
+<input type="submit" id="sendDelay" value="Send"/>
 <script src="js/jquery-1.12.4.js" type="application/javascript"></script>
 <script type="application/javascript">
 	$(document).ready(function(){
@@ -30,6 +32,26 @@
 				}
             });
 		});
+	    $("#sendDelay").click(function(){
+	    	var selectedValue = $("#delayTimeSelector").val();
+	    	console.log(selectedValue);
+	    	if(selectedValue != ""){
+	    		$.post({
+	    			url : "postcard/send/delay.do",
+	    			data : {
+	    				expiration : selectedValue
+	    			},
+	    			success : function(){
+						console.log("send delay finished");
+	    			},
+	    			fail : function(){
+						console.log("send delay fail");
+	    			}
+	    		});
+	    	}else{
+	    		alert("Please choose time!");
+	    	}
+	    });
 	});
 
 </script>
